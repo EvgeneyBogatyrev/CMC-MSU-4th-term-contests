@@ -1,1 +1,1 @@
-# 4sem_contests
+#MSU CMC 4th term contests
