@@ -1,9 +1,8 @@
 #include <iostream>
 #include <cctype>
 
-bool empty_word = false;
 
-bool check()
+bool check(bool &empty_word)
 {
     char symbol;
     while (std::cin.get(symbol) && isspace((int)symbol)) {}
@@ -73,8 +72,9 @@ bool check()
 
 int main()
 {
+    bool empty_word = false;
     do {
-        bool result = check();
+        bool result = check(empty_word);
         if (empty_word) {
             empty_word = false;  
         } else {
