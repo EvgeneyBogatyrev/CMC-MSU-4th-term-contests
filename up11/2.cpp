@@ -1,96 +1,69 @@
 #include <iostream>
 #include <string>
-#include <list>
+#include <vector>
 #include <cctype>
+#include <map>
+#include <set>
 
-struct Symbol
-{
-    char symbol;
-    bool reached = false;
-
-    Symbol(std::string in)
-    {
-        symbol = in[0];
-    }
-
-    Symbol() {}
-};
-
-bool operator < (Symbol s1, Symbol s2)
-{
-    return s1.symbol < s2.symbol;
-}
 
 struct Rule
 {
-    Symbol symbol;
     std::string line;
-    bool observed = false;
-    int order;
-    
-    Rule(Symbol &in_symbol, std::string &in_line, int current_order)
-    {
-        symbol = in_symbol;
-        line = in_line;
-        order = current_order;
-    }
+    bool reached = false;
 
-    void print()
+    Rule(std::string &in_line)
     {
-        std::cout << symbol.symbol << " " << line << std::endl;
+        line = in_line;
     }
 };
 
-bool operator < (Rule &r1, Rule &r2)
-{
-    return r1.order < r2.order;
-}
 
 int main()
 {
-    std::list<Rule> rules;
+    std::map<char, std::vector<Rule>> rules;
+    
+    char left;
+    std::string right;
+    while (std::cin >> left >> right) {
+        auto it = rules.find(left);
+        Rule rule(right);
 
-    int current_order = 0;
-    while (!std::cin.eof()) {
-        std::string left, right;
-        std::cin >> left >> right;
-
-        Symbol symbol(left);
-        if (symbol.symbol == 'S') {
-            symbol.reached = true;
+        if (it != rules.end()) {
+            it->second.push_back(rule);
+        } else {
+            rules.emplace(left, std::vector{rule});
         }
-        
-        Rule new_rule(symbol, right, current_order++);
-
-        rules.push_back(new_rule);
-
-
     }
+ 
+    std::set<char> to_check{'S'};
+    std::set<char> checked;
 
-    for (auto it = rules.begin(); it != rules.end(); ++it) {
-        if (it->symbol.reached) {
-            for (auto sym = it->line.begin(); sym != it->line.end(); ++sym) {
-                if (isupper((int) *sym)) {
-                    for (auto it2 = it; it2 != rules.end(); ++it2) {
-                        if (it2->symbol.symbol == *sym) {
-                            it2->symbol.reached = true;
+    while (to_check.size() != 0) {
+        
+        checked = to_check;
+        to_check = {};
+
+        for (auto &nonterminal : checked) {
+            if (rules.find(nonterminal) != rules.end()) {
+                for (auto it = rules[nonterminal].begin(); it != rules[nonterminal].end(); ++it) {
+                    if (!it->reached) {
+                        it->reached = true;
+                        for (auto symbol = it->line.begin(); symbol != it->line.end(); ++symbol) { 
+                            if (isupper((int)*symbol) && checked.find(*symbol) == checked.end()) {
+                                to_check.insert(*symbol);
+                            }
                         }
                     }
                 }
             }
-        } else if (!it->observed){
-            it->observed = true;
-            auto move_it = it;
-            --it;
-            rules.splice(rules.end(), rules, move_it);   
         }
     }
 
-    rules.sort();
-
-    for (auto it = rules.begin(); it != rules.end(); ++it) {
-        if (it->symbol.reached) {
-            it->print();
+    for (auto &line : rules) {
+        for (auto &rule : line.second) {
+            if (rule.reached) {
+                std::cout << line.first << ' ' << rule.line << std::endl;
+            }
         }
     }
 
