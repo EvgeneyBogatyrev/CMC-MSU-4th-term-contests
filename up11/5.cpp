@@ -1,50 +1,31 @@
 #include <iostream>
-#include <vector>
+#include <stack>
 #include <string>
 #include <cctype>
-
-struct Container
-{
-    std::string data;
-
-    Container(char s)
-    {
-        data = "";
-        data += s;
-    }
-
-    Container(Container &c1, char oper, Container &c2)
-    {
-        data = "(";
-        data += c1.data;
-        data += oper;
-        data += c2.data;
-        data += ")";
-    }
-};
 
 
 int main()
 {
-    std::vector<Container> stack;
+    std::stack<std::string> stack;
     char sym;
-    while (std::cin.get(sym)) {
+    while ((sym = std::cin.get()) != EOF) {
         if (isspace((int)sym)) {
             continue;
         }
         else if (islower((int)sym)) {
-            stack.push_back(Container(sym));
-        } else {
-            Container &c2 = stack.back();
-            stack.pop_back();
-            Container &c1 = stack.back();
-            stack.pop_back();
+            stack.push(std::string{sym});
+        } else if (sym == '+' || sym == '-' || sym == '*' || sym == '/') {
+            std::string s2 = stack.top();
+            stack.pop();
+            std::string s1 = stack.top();
+            stack.pop();
 
-            stack.push_back(Container(c1, sym, c2));
+            stack.push("(" + s1 + sym + s2 + ")");
         }
     }
 
-    std::cout << stack.back().data << std::endl;
+    std::cout << stack.top() << std::endl;
+    stack.pop();
 
     return 0;
 }
