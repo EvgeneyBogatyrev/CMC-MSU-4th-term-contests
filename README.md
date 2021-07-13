@@ -1,3 +1,3 @@
 #MSU CMC 4th term contests
 <br>
-Пожалуйста, не копируйте эти решения, если Вы учитесь на втором курсе в 2021 году.
+~ You know the rules and so do I ~
